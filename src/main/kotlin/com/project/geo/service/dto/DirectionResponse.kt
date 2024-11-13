@@ -1,4 +1,4 @@
-package com.project.geo.service
+package com.project.geo.service.dto
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.mapbox.api.directions.v5.models.DirectionsRoute

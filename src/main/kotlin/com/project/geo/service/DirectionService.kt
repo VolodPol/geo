@@ -3,6 +3,7 @@ package com.project.geo.service
 import com.mapbox.api.directions.v5.DirectionsCriteria
 import com.mapbox.api.directions.v5.MapboxDirections
 import com.mapbox.api.directions.v5.models.DirectionsResponse
+import com.project.geo.service.dto.DirectionRequest
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 
