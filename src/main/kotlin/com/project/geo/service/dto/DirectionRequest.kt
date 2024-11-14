@@ -2,7 +2,6 @@ package com.project.geo.service.dto
 
 import com.mapbox.api.directions.v5.DirectionsCriteria
 import com.mapbox.geojson.Point
-import com.project.geo.service.Coordinate
 
 
 class DirectionRequest (start: Coordinate, destination: Coordinate, overview: String, mode: String) {

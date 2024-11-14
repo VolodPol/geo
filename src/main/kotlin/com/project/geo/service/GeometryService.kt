@@ -2,6 +2,7 @@ package com.project.geo.service
 
 import com.mapbox.geojson.Point
 import com.mapbox.geojson.Polygon
+import com.project.geo.service.dto.Coordinate
 import com.project.geo.service.exceptions.NotValidPointsNumber
 import org.springframework.stereotype.Service
 
