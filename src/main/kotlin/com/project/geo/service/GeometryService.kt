@@ -60,9 +60,7 @@ class GeometryService {
                 results.map { Feature.fromGeometry(it.geometry()) }
             )
 
-            // Log the geometry of the first result.
             return feature.toJson()
-            // "onResponse: Point{type=Point, bbox=null, coordinates=[-77.036538, 38.897685]}"
         } else {
             throw NoGeometryFoundException("No Geometry found for the specified BoundingBox and country")
         }
