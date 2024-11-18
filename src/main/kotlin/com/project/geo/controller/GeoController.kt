@@ -2,6 +2,7 @@ package com.project.geo.controller
 
 import com.project.geo.service.*
 import com.project.geo.service.dto.DirectionRequest
+import com.project.geo.service.dto.GeometryRequestDto
 import com.project.geo.service.dto.PolygonDto
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
@@ -30,6 +31,12 @@ class GeoController(
         return ResponseEntity.ok(
             directionService.provideRoute(request).toJson()
         )
+    }
+
+    @GetMapping(value = ["/geometry"], consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun geometryByAddressAndBounding(
+        @RequestBody(required = true) request: GeometryRequestDto): ResponseEntity<String> {
+        return ResponseEntity.ok(geometryService.geometryByAddress(request))
     }
 
 }

@@ -1,13 +1,23 @@
 package com.project.geo.service
 
+import com.mapbox.api.geocoding.v5.MapboxGeocoding
+import com.mapbox.geojson.BoundingBox
+import com.mapbox.geojson.Feature
+import com.mapbox.geojson.FeatureCollection
 import com.mapbox.geojson.Point
 import com.mapbox.geojson.Polygon
 import com.project.geo.service.dto.Coordinate
+import com.project.geo.service.dto.GeometryRequestDto
+import com.project.geo.service.exceptions.NoGeometryFoundException
 import com.project.geo.service.exceptions.NotValidPointsNumber
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 
 @Service
 class GeometryService {
+
+    @Value("\${mapbox.token}")
+    private lateinit var token: String
 
     fun polygonByCoordinates(coordinates: List<Coordinate>): Polygon {
         val points = coordinates.asSequence()
@@ -30,5 +40,33 @@ class GeometryService {
             points.add(Point.fromLngLat(firstPoint.longitude(), firstPoint.latitude()))
         }
     }
+
+    fun geometryByAddress(request: GeometryRequestDto): String {
+        val box: BoundingBox = BoundingBox.fromPoints(
+            Point.fromLngLat(request.southWestCoordinate.longitude, request.southWestCoordinate.latitude),
+            Point.fromLngLat(request.northEastCoordinate.longitude, request.northEastCoordinate.latitude)
+        )
+        val geocoding = MapboxGeocoding.builder()
+            .bbox(box)
+            .accessToken(token)
+            .query(request.address)
+            .build()
+
+        val response = geocoding.executeCall()
+        val results = response.body()!!.features()
+
+        if (results.size > 0) {
+            val feature = FeatureCollection.fromFeatures(
+                results.map { Feature.fromGeometry(it.geometry()) }
+            )
+
+            // Log the geometry of the first result.
+            return feature.toJson()
+            // "onResponse: Point{type=Point, bbox=null, coordinates=[-77.036538, 38.897685]}"
+        } else {
+            throw NoGeometryFoundException("No Geometry found for the specified BoundingBox and country")
+        }
+    }
+
 
 }
