@@ -1,6 +1,5 @@
 package com.project.geo.service
 
-import com.mapbox.api.directions.v5.DirectionsCriteria
 import com.mapbox.api.directions.v5.MapboxDirections
 import com.mapbox.api.directions.v5.models.DirectionsResponse
 import com.project.geo.service.dto.DirectionRequest
@@ -18,8 +17,8 @@ class DirectionService {
         val client = MapboxDirections.builder()
             .origin(request.start)
             .destination(request.destination)
-            .overview(DirectionsCriteria.OVERVIEW_FULL)
-            .profile(DirectionsCriteria.PROFILE_DRIVING)
+            .overview(request.overviewMode)
+            .profile(request.profileMode)
             .accessToken(token)
             .build()
 
