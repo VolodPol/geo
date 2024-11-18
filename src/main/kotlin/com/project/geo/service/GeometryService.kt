@@ -1,11 +1,7 @@
 package com.project.geo.service
 
 import com.mapbox.api.geocoding.v5.MapboxGeocoding
-import com.mapbox.geojson.BoundingBox
-import com.mapbox.geojson.Feature
-import com.mapbox.geojson.FeatureCollection
-import com.mapbox.geojson.Point
-import com.mapbox.geojson.Polygon
+import com.mapbox.geojson.*
 import com.project.geo.service.dto.Coordinate
 import com.project.geo.service.dto.GeometryRequestDto
 import com.project.geo.service.exceptions.NoGeometryFoundException
@@ -22,7 +18,7 @@ class GeometryService {
     fun polygonByCoordinates(coordinates: List<Coordinate>): Polygon {
         val points = coordinates.asSequence()
             .map { Point.fromLngLat(it.longitude, it.latitude) }
-            .toMutableList()
+            . toMutableList()
         validatePoints(points)
         return Polygon.fromLngLats(
             listOf(

@@ -35,7 +35,8 @@ class GeoController(
 
     @GetMapping(value = ["/geometry"], consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun geometryByAddressAndBounding(
-        @RequestBody(required = true) request: GeometryRequestDto): ResponseEntity<String> {
+        @RequestBody(required = true) request: GeometryRequestDto
+    ): ResponseEntity<String> {
         return ResponseEntity.ok(geometryService.geometryByAddress(request))
     }
 
