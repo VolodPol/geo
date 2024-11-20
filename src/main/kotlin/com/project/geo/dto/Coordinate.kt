@@ -1,3 +1,3 @@
-package com.project.geo.service.dto
+package com.project.geo.dto
 
 class Coordinate(val longitude: Double, val latitude: Double)

@@ -1,4 +1,4 @@
-package com.project.geo.service.dto
+package com.project.geo.dto
 
 import com.mapbox.api.directions.v5.DirectionsCriteria
 import com.mapbox.geojson.Point

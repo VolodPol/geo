@@ -1,11 +1,9 @@
 package com.project.geo.controller
 
-import com.project.geo.service.*
-import com.project.geo.service.dto.DirectionRequest
-import com.project.geo.service.dto.GeometryRequestDto
-import com.project.geo.service.dto.PolygonDto
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.MediaType
+import com.project.geo.dto.DirectionRequest
+import com.project.geo.dto.GeometryRequestDto
+import com.project.geo.service.impl.DirectionServiceImpl
+import com.project.geo.service.impl.GeometryServiceImpl
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -15,25 +13,18 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("api")
 class GeoController(
-    @Autowired val geometryService: GeometryService,
-    @Autowired val directionService: DirectionService
+    private val geometryService: GeometryServiceImpl,
+    private val directionService: DirectionServiceImpl
 ) {
 
-    @GetMapping(value = ["/polygon"], produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun getGeoJson(@RequestBody(required = true) dto: PolygonDto): ResponseEntity<String> {
-        return ResponseEntity.ok(
-            geometryService.polygonByCoordinates(dto.coordinates).toJson()
-        )
-    }
-
-    @GetMapping(value = ["/direction"], consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
+    @GetMapping("direction")
     fun directionRequest(@RequestBody(required = true) request: DirectionRequest): ResponseEntity<String> {
         return ResponseEntity.ok(
             directionService.provideRoute(request).toJson()
         )
     }
 
-    @GetMapping(value = ["/geometry"], consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
+    @GetMapping("geometry")
     fun geometryByAddressAndBounding(
         @RequestBody(required = true) request: GeometryRequestDto
     ): ResponseEntity<String> {
