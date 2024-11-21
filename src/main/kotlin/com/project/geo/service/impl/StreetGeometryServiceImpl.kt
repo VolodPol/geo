@@ -5,6 +5,7 @@ import com.mapbox.geojson.LineString
 import com.mapbox.geojson.Point
 import com.project.geo.dto.GeometryRequestDto
 import com.project.geo.dto.StreetResponse
+import com.project.geo.exceptions.IncorrectRequestException
 import com.project.geo.service.StreetGeometryService
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.http.HttpStatusCode
@@ -38,7 +39,7 @@ class StreetGeometryServiceImpl(
             .body(requestBody.format(street, southWest.latitude, southWest.longitude, northEast.latitude, northEast.longitude))
             .retrieve()
             .onStatus(HttpStatusCode::is4xxClientError) { _, response ->
-                throw RuntimeException(response.statusCode.toString())
+                throw IncorrectRequestException(response.statusCode.toString())
             }
             .body<String>() ?: ""
 
