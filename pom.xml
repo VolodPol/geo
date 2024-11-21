@@ -17,38 +17,16 @@
 	<properties>
 		<java.version>21</java.version>
 		<kotlin.version>1.9.25</kotlin.version>
+		<mapbox.version>5.8.0</mapbox.version>
 	</properties>
-
-
-	<repositories>
-		<repository><!--Repository to access transitive dependency 'androidx.annotation:annotation' needed for 'mapbox-sdk-services'-->
-			<id>custom-repo</id>
-			<name>for annotation</name>
-			<url>https://maven.google.com/</url>
-		</repository>
-	</repositories>
-
 
 	<dependencies>
 
 		<dependency>
 			<groupId>com.mapbox.mapboxsdk</groupId>
 			<artifactId>mapbox-sdk-geojson</artifactId>
-			<version>5.8.0</version>
+			<version>${mapbox.version}</version>
 		</dependency>
-
-		<dependency>
-			<groupId>com.mapbox.mapboxsdk</groupId>
-			<artifactId>mapbox-sdk-core</artifactId>
-			<version>5.8.0</version>
-		</dependency>
-
-		<dependency>
-			<groupId>com.mapbox.mapboxsdk</groupId>
-			<artifactId>mapbox-sdk-services</artifactId>
-			<version>5.8.0</version>
-		</dependency>
-
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
