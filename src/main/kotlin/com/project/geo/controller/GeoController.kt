@@ -2,6 +2,7 @@ package com.project.geo.controller
 
 import com.project.geo.dto.DirectionRequest
 import com.project.geo.dto.GeometryRequestDto
+import com.project.geo.service.StreetGeometryService
 import com.project.geo.service.impl.DirectionServiceImpl
 import com.project.geo.service.impl.GeometryServiceImpl
 import org.springframework.http.ResponseEntity
@@ -14,7 +15,8 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("api")
 class GeoController(
     private val geometryService: GeometryServiceImpl,
-    private val directionService: DirectionServiceImpl
+    private val directionService: DirectionServiceImpl,
+    private val streetGeometryService: StreetGeometryService
 ) {
 
     @GetMapping("direction")
@@ -31,4 +33,10 @@ class GeoController(
         return ResponseEntity.ok(geometryService.geometryByAddress(request))
     }
 
+    @GetMapping("street")
+    fun streetGeometry(
+        @RequestBody(required = true) request: GeometryRequestDto
+    ): ResponseEntity<String> {
+        return ResponseEntity.ok(streetGeometryService.extractStreet(request))
+    }
 }
