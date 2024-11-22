@@ -7,7 +7,6 @@ import com.project.geo.dto.GeometryRequestDto
 import com.project.geo.dto.StreetResponse
 import com.project.geo.exceptions.IncorrectRequestException
 import com.project.geo.service.StreetGeometryService
-import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.http.HttpStatusCode
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Service
@@ -16,33 +15,35 @@ import org.springframework.web.client.body
 
 @Service
 class StreetGeometryServiceImpl(
-    @Qualifier("OverpassClient") private val client: RestClient
+    private val overpassClient: RestClient
 ) : StreetGeometryService {
 
-    private val requestBody: String = """
-        [out:json];
-        (
-            way["name"="%s"](%f,%f,%f,%f);
-            (._;>;);
-        );
-        node(w);
-        out body; 
-        """.trimIndent()
+    private companion object {
+        private val OVERPASS_REQUEST_BODY_TMP: String = """
+            [out:json];
+            (
+                way["name"="%s"](%f,%f,%f,%f);
+                (._;>;);
+            );
+            node(w);
+            out body; 
+            """.trimIndent()
+    }
 
     override fun extractStreet(request: GeometryRequestDto): String {
         val southWest = request.southWestCoordinate
         val northEast = request.northEastCoordinate
 
-        val body = client.post()
-            .contentType(MediaType.APPLICATION_JSON)
-            .body(requestBody.format(request.address, southWest.latitude, southWest.longitude, northEast.latitude, northEast.longitude))
-            .retrieve()
-            .onStatus(HttpStatusCode::is4xxClientError) { _, response ->
-                throw IncorrectRequestException(response.statusCode.toString())
-            }
-            .body<String>() ?: ""
-
-        return convertToGeoJson(deserialize(body))
+        return convertToGeoJson(deserialize(
+                overpassClient.post()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(OVERPASS_REQUEST_BODY_TMP.format(request.address, southWest.latitude, southWest.longitude, northEast.latitude, northEast.longitude))
+                    .retrieve()
+                    .onStatus(HttpStatusCode::is4xxClientError) { _, response ->
+                        throw IncorrectRequestException(response.statusCode.toString())
+                    }
+                    .body<String>() ?: throw IncorrectRequestException()
+        ))
     }
 
     private fun deserialize(response: String): StreetResponse {

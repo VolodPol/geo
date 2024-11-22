@@ -1,3 +1,6 @@
 package com.project.geo.exceptions
 
-class IncorrectRequestException(message: String) : RuntimeException(message)
+class IncorrectRequestException: RuntimeException {
+    constructor() : super()
+    constructor(message: String): super(message)
+}
