@@ -30,28 +30,29 @@ class StreetGeometryServiceImpl(
         """.trimIndent()
 
     override fun extractStreet(request: GeometryRequestDto): String {
-        val street = request.address
         val southWest = request.southWestCoordinate
         val northEast = request.northEastCoordinate
 
         val body = client.post()
             .contentType(MediaType.APPLICATION_JSON)
-            .body(requestBody.format(street, southWest.latitude, southWest.longitude, northEast.latitude, northEast.longitude))
+            .body(requestBody.format(request.address, southWest.latitude, southWest.longitude, northEast.latitude, northEast.longitude))
             .retrieve()
             .onStatus(HttpStatusCode::is4xxClientError) { _, response ->
                 throw IncorrectRequestException(response.statusCode.toString())
             }
             .body<String>() ?: ""
 
-        val response: StreetResponse = JsonMapper()
-            .readerFor(StreetResponse::class.java)
-            .readValue(body)
+        return convertToGeoJson(deserialize(body))
+    }
 
-        return convertToGeoJson(response)
+    private fun deserialize(response: String): StreetResponse {
+        return JsonMapper()
+            .readerFor(StreetResponse::class.java)
+            .readValue(response)
     }
 
     private fun convertToGeoJson(response: StreetResponse): String {
-        val points = response.elements.asSequence()
+        val points = response.elements
             .map { Point.fromLngLat(it.longitude, it.latitude) }
             .toMutableList()
 
