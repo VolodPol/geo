@@ -15,9 +15,7 @@ class GeoController(
 ) {
 
     @GetMapping("street")
-    fun streetGeometry(
-        @RequestBody(required = true) request: GeometryRequestDto
-    ): ResponseEntity<String> {
+    fun streetGeometry(@RequestBody(required = true) request: GeometryRequestDto): ResponseEntity<String> {
         return ResponseEntity.ok(streetGeometryService.extractStreet(request))
     }
 }
