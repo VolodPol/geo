@@ -27,11 +27,12 @@ class StreetGeometryServiceTest {
     private lateinit var service: StreetGeometryServiceImpl
 
     private val fakeAddress = GeometryRequestDto(
-        address = "John Doe's Street",
+        address = "John Doe Street",
         northEastCoordinate = Coordinate(45.0, 7.1),
         southWestCoordinate = Coordinate(50.8, 16.2)
     )
-    private val regularIntermediateResponse = """
+
+    private val intermediateResponse = """
             {
               "version": 0.6,
               "generator": "Overpass API 0.7.62.4 2390de5a",
@@ -40,17 +41,22 @@ class StreetGeometryServiceTest {
                 "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
               },
               "elements": [
-            {
+            %s
+              ]
+            }
+        """.trimIndent()
+    private val nodeElements = """
+        {
               "type": "node",
               "id": 9717107887,
-              "lat": 50.7241254,
-              "lon": 7.1564241
+              "lat": %.7f,
+              "lon": %.7f
             },
             {
               "type": "node",
               "id": 9998437079,
-              "lat": 50.7234090,
-              "lon": 7.1537021,
+              "lat": %.7f,
+              "lon": %.7f,
               "tags": {
                 "crossing": "unmarked",
                 "crossing:markings": "no",
@@ -61,27 +67,9 @@ class StreetGeometryServiceTest {
             {
               "type": "node",
               "id": 12310564388,
-              "lat": 50.7242889,
-              "lon": 7.1570839
+              "lat": %.7f,
+              "lon": %.7f
             }
-              ]
-            }
-        """.trimIndent()
-
-    private val emptyIntermediateResponse = """
-        {
-          "version": 0.6,
-          "generator": "Overpass API 0.7.62.4 2390de5a",
-          "osm3s": {
-            "timestamp_osm_base": "2024-11-22T13:28:52Z",
-            "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
-          },
-          "elements": [
-
-
-
-          ]
-        }
     """.trimIndent()
 
 
@@ -98,28 +86,25 @@ class StreetGeometryServiceTest {
 
     @Test
     fun verifyRegularOutput() {
+        val firstPoint = Point.fromLngLat(7.1564241, 50.7241254)
+        val secondPoint = Point.fromLngLat(7.1537021, 50.7234090)
+        val thirdPoint = Point.fromLngLat(7.1570839, 50.7242889)
+
         val mockResponseSpec = mockClientCommonBehaviour()
         `when`(mockResponseSpec.onStatus(any(), any())).thenReturn(mockResponseSpec)
-        `when`(mockResponseSpec.body<String>()).thenReturn(regularIntermediateResponse)
-
-        val expected: String = LineString.fromLngLats(
-            mutableListOf(
-                Point.fromLngLat(7.1564241, 50.7241254),
-                Point.fromLngLat(7.1537021, 50.7234090),
-                Point.fromLngLat(7.1570839, 50.7242889)
-            )
-        ).toJson()
-
-        assertEquals(expected,
-            service.extractStreet(fakeAddress)
+        `when`(mockResponseSpec.body<String>()).thenReturn(
+            provideRegularIntermediateResponse(firstPoint, secondPoint, thirdPoint)
         )
+
+        val expected: String = LineString.fromLngLats(mutableListOf(firstPoint, secondPoint, thirdPoint)).toJson()
+        assertEquals(expected, service.extractStreet(fakeAddress))
     }
 
     @Test
     fun verifyEmptyOutput() {
         val mockResponseSpec = mockClientCommonBehaviour()
         `when`(mockResponseSpec.onStatus(any(), any())).thenReturn(mockResponseSpec)
-        `when`(mockResponseSpec.body<String>()).thenReturn(emptyIntermediateResponse)
+        `when`(mockResponseSpec.body<String>()).thenReturn(intermediateResponse.format(""))
 
         val expected = "{\"type\":\"LineString\",\"coordinates\":[]}"
         assertEquals(expected, service.extractStreet(fakeAddress))
@@ -136,5 +121,15 @@ class StreetGeometryServiceTest {
         `when`(mockRequestBodySpec.retrieve()).thenReturn(mockResponseSpec)
 
         return mockResponseSpec
+    }
+
+    private fun provideRegularIntermediateResponse(first: Point, second: Point, third: Point): String {
+        return intermediateResponse.format(
+            nodeElements.format(
+                first.latitude(), first.longitude(),
+                second.latitude(), second.longitude(),
+                third.latitude(), third.longitude()
+            )
+        )
     }
 }
