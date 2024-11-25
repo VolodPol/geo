@@ -4,13 +4,13 @@ import com.mapbox.geojson.LineString
 import com.mapbox.geojson.Point
 import com.project.geo.exceptions.IncorrectRequestException
 import com.project.geo.service.impl.StreetGeometryServiceImpl
-import org.junit.jupiter.api.Assertions.*
+import io.mockk.every
+import io.mockk.impl.annotations.InjectMockKs
+import io.mockk.impl.annotations.MockK
+import io.mockk.junit5.MockKExtension
+import io.mockk.mockk
+import org.assertj.core.api.Assertions.*
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.ArgumentMatchers.any
-import org.mockito.InjectMocks
-import org.mockito.Mock
-import org.mockito.Mockito.*
-import org.mockito.junit.jupiter.MockitoExtension
 import org.springframework.http.MediaType
 import org.springframework.web.client.RestClient
 import org.springframework.web.client.body
@@ -18,12 +18,12 @@ import java.nio.charset.StandardCharsets
 import kotlin.test.Test
 
 
-@ExtendWith(MockitoExtension::class)
+@ExtendWith(MockKExtension::class)
 class StreetGeometryServiceTest {
-    @Mock
+    @MockK
     private lateinit var client: RestClient
 
-    @InjectMocks
+    @InjectMockKs
     private lateinit var service: StreetGeometryServiceImpl
 
     private companion object {
@@ -48,12 +48,12 @@ class StreetGeometryServiceTest {
     @Test
     fun verifyOverpassClientError() {
         val mockResponseSpec = mockClientCommonBehaviour()
-        `when`(mockResponseSpec.onStatus(any(), any()))
-            .thenThrow(IncorrectRequestException("400"))
+        val errorMessage = "400"
+        every {mockResponseSpec.onStatus(any(), any())} throws IncorrectRequestException(errorMessage)
 
-        assertThrows(IncorrectRequestException::class.java) {
-            service.extractStreet(ADDRESS, SOUTH_WEST, NORTH_EAST)
-        }
+        assertThatThrownBy { service.extractStreet(ADDRESS, SOUTH_WEST, NORTH_EAST) }
+            .hasMessage(errorMessage)
+            .isInstanceOf(IncorrectRequestException::class.java)
     }
 
     @Test
@@ -63,34 +63,34 @@ class StreetGeometryServiceTest {
         val thirdPoint = Point.fromLngLat(7.1570839, 50.7242889)
 
         val mockResponseSpec = mockClientCommonBehaviour()
-        `when`(mockResponseSpec.onStatus(any(), any())).thenReturn(mockResponseSpec)
-        `when`(mockResponseSpec.body<String>()).thenReturn(
+        every {mockResponseSpec.onStatus(any(), any())} returns mockResponseSpec
+        every {mockResponseSpec.body<String>()} returns (
             provideRegularIntermediateResponse(firstPoint, secondPoint, thirdPoint)
         )
 
         val expected: String = LineString.fromLngLats(mutableListOf(firstPoint, secondPoint, thirdPoint)).toJson()
-        assertEquals(expected, service.extractStreet(ADDRESS, SOUTH_WEST, NORTH_EAST))
+        assertThat(service.extractStreet(ADDRESS, SOUTH_WEST, NORTH_EAST)).isEqualTo(expected)
     }
 
     @Test
     fun verifyEmptyOutput() {
         val mockResponseSpec = mockClientCommonBehaviour()
-        `when`(mockResponseSpec.onStatus(any(), any())).thenReturn(mockResponseSpec)
-        `when`(mockResponseSpec.body<String>()).thenReturn(INTERMEDIATE_RESPONSE.format(""))
+        every {mockResponseSpec.onStatus(any(), any())} returns mockResponseSpec
+        every {mockResponseSpec.body<String>()} returns INTERMEDIATE_RESPONSE.format("")
 
         val expected = "{\"type\":\"LineString\",\"coordinates\":[]}"
-        assertEquals(expected, service.extractStreet(ADDRESS, SOUTH_WEST, NORTH_EAST))
+        assertThat(service.extractStreet(ADDRESS, SOUTH_WEST, NORTH_EAST)).isEqualTo(expected)
     }
 
     private fun mockClientCommonBehaviour(): RestClient.ResponseSpec {
-        val mockRequestSpec = mock(RestClient.RequestBodyUriSpec::class.java)
-        val mockRequestBodySpec = mock(RestClient.RequestBodySpec::class.java)
-        val mockResponseSpec = mock(RestClient.ResponseSpec::class.java)
+        val mockRequestSpec = mockk<RestClient.RequestBodyUriSpec>()
+        val mockRequestBodySpec = mockk<RestClient.RequestBodySpec>()
+        val mockResponseSpec = mockk<RestClient.ResponseSpec>()
 
-        `when`(client.post()).thenReturn(mockRequestSpec)
-        `when`(mockRequestSpec.contentType(MediaType.APPLICATION_JSON)).thenReturn(mockRequestSpec)
-        `when`(mockRequestSpec.body(anyString())).thenReturn(mockRequestBodySpec)
-        `when`(mockRequestBodySpec.retrieve()).thenReturn(mockResponseSpec)
+        every { client.post() } returns mockRequestSpec
+        every { mockRequestSpec.contentType(MediaType.APPLICATION_JSON) } returns mockRequestSpec
+        every { mockRequestSpec.body(any<String>()) } returns mockRequestBodySpec
+        every { mockRequestBodySpec.retrieve() } returns mockResponseSpec
 
         return mockResponseSpec
     }
