@@ -4,17 +4,19 @@ import com.mapbox.geojson.LineString
 import com.mapbox.geojson.Point
 import com.project.geo.exceptions.IncorrectRequestException
 import com.project.geo.service.impl.StreetGeometryServiceImpl
-import kotlin.test.Test
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.Mock
-import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.ArgumentMatchers.any
 import org.mockito.InjectMocks
+import org.mockito.Mock
 import org.mockito.Mockito.*
+import org.mockito.junit.jupiter.MockitoExtension
 import org.springframework.http.MediaType
 import org.springframework.web.client.RestClient
 import org.springframework.web.client.body
+import java.nio.charset.StandardCharsets
+import kotlin.test.Test
+
 
 @ExtendWith(MockitoExtension::class)
 class StreetGeometryServiceTest {
@@ -28,48 +30,20 @@ class StreetGeometryServiceTest {
         private const val ADDRESS = "John Doe Street"
         private val SOUTH_WEST: List<Double> = listOf(16.2, 50.8)
         private val NORTH_EAST: List<Double> = listOf(7.1, 45.0)
+
+        private val INTERMEDIATE_RESPONSE = readContent("overpass_response_header.txt")
+        private val NODE_ELEMENTS = readContent("overpass_node_elements.txt")
+
+        private fun readContent(file: String): String {
+            var content = ""
+            try {
+                Thread.currentThread().contextClassLoader.getResourceAsStream(file)?.use {
+                    content = String(it.readAllBytes(), StandardCharsets.UTF_8)
+                }
+            } catch (_: Exception) {throw IllegalArgumentException("Resource file '$file' not found")}
+            return content
+        }
     }
-
-    private val intermediateResponse = """
-            {
-              "version": 0.6,
-              "generator": "Overpass API 0.7.62.4 2390de5a",
-              "osm3s": {
-                "timestamp_osm_base": "2024-11-22T13:00:16Z",
-                "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
-              },
-              "elements": [
-            %s
-              ]
-            }
-        """.trimIndent()
-    private val nodeElements = """
-        {
-              "type": "node",
-              "id": 9717107887,
-              "lat": %.7f,
-              "lon": %.7f
-            },
-            {
-              "type": "node",
-              "id": 9998437079,
-              "lat": %.7f,
-              "lon": %.7f,
-              "tags": {
-                "crossing": "unmarked",
-                "crossing:markings": "no",
-                "highway": "crossing",
-                "tactile_paving": "no"
-              }
-            },
-            {
-              "type": "node",
-              "id": 12310564388,
-              "lat": %.7f,
-              "lon": %.7f
-            }
-    """.trimIndent()
-
 
     @Test
     fun verifyOverpassClientError() {
@@ -102,7 +76,7 @@ class StreetGeometryServiceTest {
     fun verifyEmptyOutput() {
         val mockResponseSpec = mockClientCommonBehaviour()
         `when`(mockResponseSpec.onStatus(any(), any())).thenReturn(mockResponseSpec)
-        `when`(mockResponseSpec.body<String>()).thenReturn(intermediateResponse.format(""))
+        `when`(mockResponseSpec.body<String>()).thenReturn(INTERMEDIATE_RESPONSE.format(""))
 
         val expected = "{\"type\":\"LineString\",\"coordinates\":[]}"
         assertEquals(expected, service.extractStreet(ADDRESS, SOUTH_WEST, NORTH_EAST))
@@ -122,8 +96,8 @@ class StreetGeometryServiceTest {
     }
 
     private fun provideRegularIntermediateResponse(first: Point, second: Point, third: Point): String {
-        return intermediateResponse.format(
-            nodeElements.format(
+        return INTERMEDIATE_RESPONSE.format(
+            NODE_ELEMENTS.format(
                 first.latitude(), first.longitude(),
                 second.latitude(), second.longitude(),
                 third.latitude(), third.longitude()

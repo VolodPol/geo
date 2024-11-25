@@ -1,0 +1,24 @@
+            {
+              "type": "node",
+              "id": 9717107887,
+              "lat": %.7f,
+              "lon": %.7f
+            },
+            {
+              "type": "node",
+              "id": 9998437079,
+              "lat": %.7f,
+              "lon": %.7f,
+              "tags": {
+                "crossing": "unmarked",
+                "crossing:markings": "no",
+                "highway": "crossing",
+                "tactile_paving": "no"
+              }
+            },
+            {
+              "type": "node",
+              "id": 12310564388,
+              "lat": %.7f,
+              "lon": %.7f
+            }
