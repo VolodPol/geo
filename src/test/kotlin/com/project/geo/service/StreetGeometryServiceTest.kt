@@ -2,8 +2,6 @@ package com.project.geo.service
 
 import com.mapbox.geojson.LineString
 import com.mapbox.geojson.Point
-import com.project.geo.dto.Coordinate
-import com.project.geo.dto.GeometryRequestDto
 import com.project.geo.exceptions.IncorrectRequestException
 import com.project.geo.service.impl.StreetGeometryServiceImpl
 import kotlin.test.Test
@@ -26,11 +24,11 @@ class StreetGeometryServiceTest {
     @InjectMocks
     private lateinit var service: StreetGeometryServiceImpl
 
-    private val fakeAddress = GeometryRequestDto(
-        address = "John Doe Street",
-        northEastCoordinate = Coordinate(45.0, 7.1),
-        southWestCoordinate = Coordinate(50.8, 16.2)
-    )
+    private companion object {
+        private const val ADDRESS = "John Doe Street"
+        private val SOUTH_WEST: List<Double> = listOf(16.2, 50.8)
+        private val NORTH_EAST: List<Double> = listOf(7.1, 45.0)
+    }
 
     private val intermediateResponse = """
             {
@@ -80,7 +78,7 @@ class StreetGeometryServiceTest {
             .thenThrow(IncorrectRequestException("400"))
 
         assertThrows(IncorrectRequestException::class.java) {
-            service.extractStreet(fakeAddress)
+            service.extractStreet(ADDRESS, SOUTH_WEST, NORTH_EAST)
         }
     }
 
@@ -97,7 +95,7 @@ class StreetGeometryServiceTest {
         )
 
         val expected: String = LineString.fromLngLats(mutableListOf(firstPoint, secondPoint, thirdPoint)).toJson()
-        assertEquals(expected, service.extractStreet(fakeAddress))
+        assertEquals(expected, service.extractStreet(ADDRESS, SOUTH_WEST, NORTH_EAST))
     }
 
     @Test
@@ -107,7 +105,7 @@ class StreetGeometryServiceTest {
         `when`(mockResponseSpec.body<String>()).thenReturn(intermediateResponse.format(""))
 
         val expected = "{\"type\":\"LineString\",\"coordinates\":[]}"
-        assertEquals(expected, service.extractStreet(fakeAddress))
+        assertEquals(expected, service.extractStreet(ADDRESS, SOUTH_WEST, NORTH_EAST))
     }
 
     private fun mockClientCommonBehaviour(): RestClient.ResponseSpec {

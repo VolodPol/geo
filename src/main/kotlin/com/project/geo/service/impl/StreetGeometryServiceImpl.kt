@@ -3,7 +3,6 @@ package com.project.geo.service.impl
 import com.fasterxml.jackson.databind.json.JsonMapper
 import com.mapbox.geojson.LineString
 import com.mapbox.geojson.Point
-import com.project.geo.dto.GeometryRequestDto
 import com.project.geo.dto.StreetResponse
 import com.project.geo.exceptions.IncorrectRequestException
 import com.project.geo.service.StreetGeometryService
@@ -30,14 +29,16 @@ class StreetGeometryServiceImpl(
             """.trimIndent()
     }
 
-    override fun extractStreet(request: GeometryRequestDto): String {
-        val southWest = request.southWestCoordinate
-        val northEast = request.northEastCoordinate
+    override fun extractStreet(address: String, southWestPoint: List<Double>, northEastPoint: List<Double>): String {
+        val south = southWestPoint.first()
+        val west = southWestPoint.last()
+        val north = northEastPoint.first()
+        val east = northEastPoint.last()
 
         return convertToGeoJson(deserialize(
                 overpassClient.post()
                     .contentType(MediaType.APPLICATION_JSON)
-                    .body(OVERPASS_REQUEST_BODY_TMP.format(request.address, southWest.latitude, southWest.longitude, northEast.latitude, northEast.longitude))
+                    .body(OVERPASS_REQUEST_BODY_TMP.format(address, south, west, north, east))
                     .retrieve()
                     .onStatus(HttpStatusCode::is4xxClientError) { _, response ->
                         throw IncorrectRequestException(response.statusCode.toString())
