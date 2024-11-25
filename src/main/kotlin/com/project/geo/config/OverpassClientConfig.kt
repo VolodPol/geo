@@ -11,7 +11,7 @@ class OverpassClientConfig {
     @Value("\${overpass.url}")
     private lateinit var overpassUrl: String
 
-    @Bean("OverpassClient")
+    @Bean
     fun overpassClient(): RestClient {
         return RestClient.builder()
             .baseUrl(overpassUrl)
