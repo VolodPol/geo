@@ -20,6 +20,9 @@ class GeoController(
                        @RequestParam("south_west") southWest: List<Double>,
                        @RequestParam("north_east") northEast: List<Double>
     ): ResponseEntity<String> {
+        if (southWest.size != 2 || northEast.size != 2)
+            throw IllegalArgumentException("Two pairs of coordinates must be provided")
+
         return ResponseEntity.ok(streetGeometryService.extractStreet(address, southWest, northEast))
     }
 }
