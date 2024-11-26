@@ -26,7 +26,7 @@ class StreetGeometryServiceTest {
     @InjectMockKs
     private lateinit var service: StreetGeometryServiceImpl
 
-    private companion object {
+    companion object {
         private const val ADDRESS = "John Doe Street"
         private val SOUTH_WEST: List<Double> = listOf(16.2, 50.8)
         private val NORTH_EAST: List<Double> = listOf(7.1, 45.0)
@@ -34,7 +34,7 @@ class StreetGeometryServiceTest {
         private val INTERMEDIATE_RESPONSE = readContent("overpass_response_header.txt")
         private val NODE_ELEMENTS = readContent("overpass_node_elements.txt")
 
-        private fun readContent(file: String): String {
+        fun readContent(file: String): String {
             var content = ""
             try {
                 Thread.currentThread().contextClassLoader.getResourceAsStream(file)?.use {
