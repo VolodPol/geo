@@ -1,6 +1,5 @@
 package com.project.geo.service.impl
 
-import com.fasterxml.jackson.databind.json.JsonMapper
 import com.mapbox.geojson.LineString
 import com.mapbox.geojson.Point
 import com.project.geo.dto.StreetResponse
@@ -44,7 +43,7 @@ class StreetGeometryServiceImpl(
                 .onStatus(HttpStatusCode::is4xxClientError) { _, response ->
                     throw IncorrectRequestException(response.statusCode.toString())
                 }
-                .body<String>()?.deserializeByClass(StreetResponse::class.java)
+                .body<String>()?.deserializeByClass<StreetResponse>()
                 ?: throw IncorrectRequestException()
         )
     }

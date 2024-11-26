@@ -2,6 +2,8 @@ package com.project.geo.service
 
 import com.mapbox.geojson.LineString
 import com.mapbox.geojson.Point
+import com.project.geo.NODE_ELEMENTS
+import com.project.geo.RESPONSE_HEADER
 import com.project.geo.exceptions.IncorrectRequestException
 import com.project.geo.service.impl.StreetGeometryServiceImpl
 import io.mockk.every
@@ -31,8 +33,8 @@ class StreetGeometryServiceTest {
         private val SOUTH_WEST: List<Double> = listOf(16.2, 50.8)
         private val NORTH_EAST: List<Double> = listOf(7.1, 45.0)
 
-        private val INTERMEDIATE_RESPONSE = readContent("overpass_response_header.txt")
-        private val NODE_ELEMENTS = readContent("overpass_node_elements.txt")
+        private val INTERMEDIATE_RESPONSE = readContent(RESPONSE_HEADER)
+        private val LIST_ELEMENTS = readContent(NODE_ELEMENTS)
 
         fun readContent(file: String): String {
             var content = ""
@@ -97,7 +99,7 @@ class StreetGeometryServiceTest {
 
     private fun provideRegularIntermediateResponse(first: Point, second: Point, third: Point): String {
         return INTERMEDIATE_RESPONSE.format(
-            NODE_ELEMENTS.format(
+            LIST_ELEMENTS.format(
                 first.latitude(), first.longitude(),
                 second.latitude(), second.longitude(),
                 third.latitude(), third.longitude()

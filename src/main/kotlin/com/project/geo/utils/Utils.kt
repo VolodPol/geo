@@ -2,8 +2,8 @@ package com.project.geo.utils
 
 import com.fasterxml.jackson.databind.json.JsonMapper
 
-fun <C> String.deserializeByClass(clazz: Class<C>): C {
+inline fun <reified C> String.deserializeByClass(): C {
     return JsonMapper()
-        .readerFor(clazz)
+        .readerFor(C::class.java)
         .readValue(this)
 }
