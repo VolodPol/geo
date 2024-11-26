@@ -4,7 +4,6 @@ import com.mapbox.geojson.LineString
 import com.mapbox.geojson.Point
 import com.project.geo.NODE_ELEMENTS
 import com.project.geo.RESPONSE_HEADER
-import com.project.geo.exceptions.IncorrectRequestException
 import com.project.geo.service.impl.StreetGeometryServiceImpl
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
@@ -51,11 +50,11 @@ class StreetGeometryServiceTest {
     fun verifyOverpassClientError() {
         val mockResponseSpec = mockClientCommonBehaviour()
         val errorMessage = "400"
-        every {mockResponseSpec.onStatus(any(), any())} throws IncorrectRequestException(errorMessage)
+        every {mockResponseSpec.onStatus(any(), any())} throws IllegalArgumentException(errorMessage)
 
         assertThatThrownBy { service.extractStreet(ADDRESS, SOUTH_WEST, NORTH_EAST) }
             .hasMessage(errorMessage)
-            .isInstanceOf(IncorrectRequestException::class.java)
+            .isInstanceOf(IllegalArgumentException::class.java)
     }
 
     @Test

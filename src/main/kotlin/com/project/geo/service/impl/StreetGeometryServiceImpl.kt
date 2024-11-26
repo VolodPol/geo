@@ -3,7 +3,6 @@ package com.project.geo.service.impl
 import com.mapbox.geojson.LineString
 import com.mapbox.geojson.Point
 import com.project.geo.dto.StreetResponse
-import com.project.geo.exceptions.IncorrectRequestException
 import com.project.geo.service.StreetGeometryService
 import com.project.geo.utils.deserializeByClass
 import org.springframework.http.HttpStatusCode
@@ -41,10 +40,10 @@ class StreetGeometryServiceImpl(
                 .body(OVERPASS_REQUEST_BODY_TMP.format(address, south, west, north, east))
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError) { _, response ->
-                    throw IncorrectRequestException(response.statusCode.toString())
+                    throw IllegalArgumentException(response.statusCode.toString())
                 }
                 .body<String>()?.deserializeByClass<StreetResponse>()
-                ?: throw IncorrectRequestException()
+                ?: throw IllegalArgumentException()
         )
     }
 
