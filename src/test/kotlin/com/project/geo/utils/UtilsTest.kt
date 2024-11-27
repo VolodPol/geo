@@ -36,8 +36,8 @@ class UtilsTest {
     }
 
     private fun compareNodes(actual: Node, expected: Node) {
-        assertThat(actual.latitude).isEqualTo(expected.latitude, withPrecision(NODE_COMPARISON_PRECISION))
-        assertThat(actual.longitude).isEqualTo(expected.longitude, withPrecision(NODE_COMPARISON_PRECISION))
+        assertThat(actual.lat).isEqualTo(expected.lat, withPrecision(NODE_COMPARISON_PRECISION))
+        assertThat(actual.lon).isEqualTo(expected.lon, withPrecision(NODE_COMPARISON_PRECISION))
     }
 
     private fun coordinates(): Array<Double> {

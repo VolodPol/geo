@@ -4,7 +4,6 @@ import com.mapbox.geojson.LineString
 import com.mapbox.geojson.Point
 import com.project.geo.dto.StreetResponse
 import com.project.geo.service.StreetGeometryService
-import com.project.geo.utils.deserializeByClass
 import org.springframework.http.HttpStatusCode
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Service
@@ -28,12 +27,13 @@ class StreetGeometryServiceImpl(
             """.trimIndent()
     }
 
-    override fun extractStreet(address: String, southWestPoint: List<Double>, northEastPoint: List<Double>): String {
+    override fun extractStreet(address: String, southWestPoint: List<Double>, northEastPoint: List<Double>): LineString {
         val south = southWestPoint.first()
         val west = southWestPoint.last()
         val north = northEastPoint.first()
         val east = northEastPoint.last()
 
+        //todo: extract request logic to a separate 'OverpassClient' service
         return convertToGeoJson(
             overpassClient.post()
                 .contentType(MediaType.APPLICATION_JSON)
@@ -42,16 +42,15 @@ class StreetGeometryServiceImpl(
                 .onStatus(HttpStatusCode::is4xxClientError) { _, response ->
                     throw IllegalArgumentException(response.statusCode.toString())
                 }
-                .body<String>()?.deserializeByClass<StreetResponse>()
-                ?: throw IllegalArgumentException()
+                .body<StreetResponse>() ?: throw IllegalArgumentException()
         )
     }
 
-    private fun convertToGeoJson(response: StreetResponse): String {
+    private fun convertToGeoJson(response: StreetResponse): LineString {
         val points = response.elements
-            .map { Point.fromLngLat(it.longitude, it.latitude) }
+            .map { Point.fromLngLat(it.lon, it.lat) }
             .toMutableList()
 
-        return LineString.fromLngLats(points).toJson()
+        return LineString.fromLngLats(points)
     }
 }
