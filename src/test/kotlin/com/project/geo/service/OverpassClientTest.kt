@@ -2,58 +2,73 @@ package com.project.geo.service
 
 import com.github.tomakehurst.wiremock.junit5.WireMockTest
 import com.github.tomakehurst.wiremock.client.WireMock.*
-import com.mapbox.geojson.Point
 import com.project.geo.NODE_ELEMENTS
 import com.project.geo.RESPONSE_HEADER
+import com.project.geo.dto.StreetResponse
+import com.project.geo.dto.StreetResponse.Node
 import com.project.geo.service.impl.OverpassClientImpl
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.assertj.core.api.Assertions.*
 
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.web.client.RestClient
 import java.nio.charset.StandardCharsets
 
 
-@WireMockTest(httpPort = 56327)
+@WireMockTest(httpPort = 8089)
 class OverpassClientTest {
 
-    @Value("\${overpass.url}")
-    private lateinit var overpassRestClientUrl: String
-    private lateinit var overpassRestClient: RestClient
-    private lateinit var client: OverpassClientImpl
-
-    @BeforeEach
-    fun init() {
-        overpassRestClient = RestClient.create(overpassRestClientUrl)
-        client = OverpassClientImpl(overpassRestClient)
-    }
+    private val overpassRestClientUrl: String = "http://localhost:8089"
+    private val overpassRestClient: RestClient = RestClient.create(overpassRestClientUrl)
+    private val client: OverpassClientImpl = OverpassClientImpl(overpassRestClient)
 
     @Test
     fun `test regular case`() {
-        val firstPoint = Point.fromLngLat(7.156, 50.724)
-        val secondPoint = Point.fromLngLat(7.153, 50.723)
-        val thirdPoint = Point.fromLngLat(7.157, 50.725)
+        val firstPoint = Node(7.156, 50.724)
+        val secondPoint = Node(7.153, 50.723)
+        val thirdPoint = Node(7.157, 50.725)
 
         val intermediateResponse = provideRegularIntermediateResponse(firstPoint, secondPoint, thirdPoint)
-        stubFor(post(overpassRestClientUrl)
-            .withRequestBody(equalTo(OverpassClientImpl.STREET_REQUEST_BODY.format(ADDRESS, *(SOUTH_WEST + NORTH_EAST).toTypedArray())))
+        val requestBody = OverpassClientImpl.STREET_REQUEST_BODY.format(ADDRESS, *(SOUTH_WEST + NORTH_EAST).toTypedArray())
+        stubFor(post(urlMatching(".*"))
+            .withRequestBody(equalTo(requestBody))
             .willReturn(okJson(intermediateResponse)))
 
+        val expectedResponse = StreetResponse(listOf(firstPoint, secondPoint, thirdPoint))
+        assertThat(client.findStreet(ADDRESS, (SOUTH_WEST + NORTH_EAST).toTypedArray())).isEqualTo(expectedResponse)
+    }
 
-        println(
-            client.findStreet(ADDRESS, (SOUTH_WEST + NORTH_EAST).toTypedArray())
-        )
+    @Test
+    fun `test server error`() {
+        val requestBody = OverpassClientImpl.STREET_REQUEST_BODY.format(ADDRESS, *(SOUTH_WEST + NORTH_EAST).toTypedArray())
+        stubFor(post(urlMatching(".*"))
+            .withRequestBody(equalTo(requestBody))
+            .willReturn(serverError()))
+
+        assertThatThrownBy { client.findStreet(ADDRESS, (SOUTH_WEST + NORTH_EAST).toTypedArray()) }
+            .isInstanceOf(IllegalArgumentException::class.java)
+            .hasMessage("500 INTERNAL_SERVER_ERROR")
+    }
+
+    @Test
+    fun `test empty response`() {
+        val requestBody = OverpassClientImpl.STREET_REQUEST_BODY.format(ADDRESS, *(SOUTH_WEST + NORTH_EAST).toTypedArray())
+        stubFor(post(urlMatching(".*"))
+            .withRequestBody(equalTo(requestBody))
+            .willReturn(okJson("")))
+
+        assertThatThrownBy { client.findStreet(ADDRESS, (SOUTH_WEST + NORTH_EAST).toTypedArray()) }
+            .isInstanceOf(IllegalArgumentException::class.java)
     }
 
     companion object {
         private const val ADDRESS = "John Doe Street"
-        private val SOUTH_WEST: List<Double> = listOf(16.2, 50.8)
-        private val NORTH_EAST: List<Double> = listOf(7.1, 45.0)
+        private val SOUTH_WEST: List<Double> = listOf(7.1, 45.0)
+        private val NORTH_EAST: List<Double> = listOf(16.2, 50.8)
 
         private val INTERMEDIATE_RESPONSE = readContent(RESPONSE_HEADER)
         private val LIST_ELEMENTS = readContent(NODE_ELEMENTS)
 
-        fun readContent(file: String): String {
+        private fun readContent(file: String): String {
             var content = ""
             try {
                 Thread.currentThread().contextClassLoader.getResourceAsStream(file)?.use {
@@ -64,12 +79,12 @@ class OverpassClientTest {
         }
     }
 
-    private fun provideRegularIntermediateResponse(first: Point, second: Point, third: Point): String {
+    private fun provideRegularIntermediateResponse(first: Node, second: Node, third: Node): String {
         return INTERMEDIATE_RESPONSE.format(
             LIST_ELEMENTS.format(
-                first.latitude(), first.longitude(),
-                second.latitude(), second.longitude(),
-                third.latitude(), third.longitude()
+                first.lat, first.lon,
+                second.lat, second.lon,
+                third.lat, third.lon
             )
         )
     }
