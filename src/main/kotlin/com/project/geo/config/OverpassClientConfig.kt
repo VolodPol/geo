@@ -9,7 +9,7 @@ import org.springframework.web.client.RestClient
 class OverpassClientConfig {
 
     @Bean
-    fun overpassClient(@Value("\${overpass.url}") overpassUrl: String): RestClient {
+    fun overpassRestClient(@Value("\${overpass.url}") overpassUrl: String): RestClient {
         return RestClient.builder()
             .baseUrl(overpassUrl)
             .build()

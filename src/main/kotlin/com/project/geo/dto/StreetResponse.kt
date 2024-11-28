@@ -1,7 +1,8 @@
 package com.project.geo.dto
 
-import com.fasterxml.jackson.annotation.JsonCreator
 
-data class StreetResponse @JsonCreator constructor(
+data class StreetResponse (
     val elements: List<Node>
-)
+) {
+    data class Node(val lon: Double, val lat: Double)
+}

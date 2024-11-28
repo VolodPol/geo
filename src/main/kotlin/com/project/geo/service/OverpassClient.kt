@@ -1,7 +1,7 @@
 package com.project.geo.service
 
-import org.springframework.web.client.RestClient
+import com.project.geo.dto.StreetResponse
 
 interface OverpassClient {
-    fun sendRequest(request: String): RestClient.ResponseSpec
+    fun findStreet(street: String, coordinates: Array<Double>): StreetResponse
 }

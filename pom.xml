@@ -20,6 +20,7 @@
 		<mapbox.version>5.8.0</mapbox.version>
 		<mockk.version>1.13.10</mockk.version>
 		<assertj.version>3.25.3</assertj.version>
+		<validation.version>8.0.1.Final</validation.version>
 	</properties>
 
 	<dependencies>
@@ -61,6 +62,13 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+
+		<dependency>
+			<groupId>org.hibernate.validator</groupId>
+			<artifactId>hibernate-validator</artifactId>
+			<version>${validation.version}</version>
+		</dependency>
+
 		<dependency>
 			<groupId>org.jetbrains.kotlin</groupId>
 			<artifactId>kotlin-test-junit5</artifactId>
