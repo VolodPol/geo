@@ -21,8 +21,8 @@ class OverpassClientImpl(private val overpassRestClient: RestClient) : OverpassC
             }.body<StreetResponse>() ?: throw IllegalArgumentException()
     }
 
-    private companion object {
-        private val STREET_REQUEST_BODY: String = """
+    companion object {
+        val STREET_REQUEST_BODY: String = """
             [out:json];
             (
                 way["name"="%s"](%f,%f,%f,%f);

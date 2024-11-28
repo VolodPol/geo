@@ -21,6 +21,7 @@
 		<mockk.version>1.13.10</mockk.version>
 		<assertj.version>3.25.3</assertj.version>
 		<validation.version>8.0.1.Final</validation.version>
+		<wiremock.version>3.9.1</wiremock.version>
 	</properties>
 
 	<dependencies>
@@ -93,6 +94,14 @@
 			<version>${assertj.version}</version>
 			<scope>test</scope>
 		</dependency>
+
+		<dependency>
+			<groupId>org.wiremock</groupId>
+			<artifactId>wiremock-standalone</artifactId>
+			<version>${wiremock.version}</version>
+			<scope>test</scope>
+		</dependency>
+
 
 	</dependencies>
 
