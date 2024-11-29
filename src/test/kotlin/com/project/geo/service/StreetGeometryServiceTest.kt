@@ -14,7 +14,6 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import org.assertj.core.api.Assertions.*
 import org.junit.jupiter.api.extension.ExtendWith
-import org.springframework.web.client.body
 import kotlin.test.Test
 
 
@@ -45,5 +44,4 @@ class StreetGeometryServiceTest {
         assertThat(service.extractStreet(ADDRESS, SOUTH_WEST, NORTH_EAST))
             .isEqualTo(expected)
     }
-
 }
