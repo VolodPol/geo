@@ -60,10 +60,20 @@ class OverpassClientTest {
             .isInstanceOf(IllegalArgumentException::class.java)
     }
 
+    private fun provideRegularIntermediateResponse(first: Node, second: Node, third: Node): String {
+        return INTERMEDIATE_RESPONSE.format(
+            LIST_ELEMENTS.format(
+                first.lat, first.lon,
+                second.lat, second.lon,
+                third.lat, third.lon
+            )
+        )
+    }
+
     companion object {
-        private const val ADDRESS = "John Doe Street"
-        private val SOUTH_WEST: List<Double> = listOf(7.1, 45.0)
-        private val NORTH_EAST: List<Double> = listOf(16.2, 50.8)
+        const val ADDRESS = "John Doe Street"
+        val SOUTH_WEST: List<Double> = listOf(7.1, 45.0)
+        val NORTH_EAST: List<Double> = listOf(16.2, 50.8)
 
         private val INTERMEDIATE_RESPONSE = readContent(RESPONSE_HEADER)
         private val LIST_ELEMENTS = readContent(NODE_ELEMENTS)
@@ -77,15 +87,5 @@ class OverpassClientTest {
             } catch (_: Exception) {throw IllegalArgumentException("Resource file '$file' not found")}
             return content
         }
-    }
-
-    private fun provideRegularIntermediateResponse(first: Node, second: Node, third: Node): String {
-        return INTERMEDIATE_RESPONSE.format(
-            LIST_ELEMENTS.format(
-                first.lat, first.lon,
-                second.lat, second.lon,
-                third.lat, third.lon
-            )
-        )
     }
 }

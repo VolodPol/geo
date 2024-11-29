@@ -4,6 +4,9 @@ import com.mapbox.geojson.LineString
 import com.mapbox.geojson.Point
 import com.project.geo.dto.StreetResponse
 import com.project.geo.dto.StreetResponse.Node
+import com.project.geo.service.OverpassClientTest.Companion.ADDRESS
+import com.project.geo.service.OverpassClientTest.Companion.NORTH_EAST
+import com.project.geo.service.OverpassClientTest.Companion.SOUTH_WEST
 import com.project.geo.service.impl.StreetGeometryServiceImpl
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
@@ -29,7 +32,7 @@ class StreetGeometryServiceTest {
         every {overpassClient.findStreet(any(), any())} returns StreetResponse(coordinates)
 
         val expected = coordinates.map { Point.fromLngLat(it.lon, it.lat) }.let { LineString.fromLngLats(it) }
-        assertThat(service.extractStreet("", listOf(), listOf()))
+        assertThat(service.extractStreet(ADDRESS, SOUTH_WEST, NORTH_EAST))
             .isEqualTo(expected)
     }
 
@@ -39,7 +42,7 @@ class StreetGeometryServiceTest {
         every {overpassClient.findStreet(any(), any())} returns StreetResponse(coordinates)
 
         val expected = LineString.fromLngLats(listOf())
-        assertThat(service.extractStreet("", listOf(), listOf()))
+        assertThat(service.extractStreet(ADDRESS, SOUTH_WEST, NORTH_EAST))
             .isEqualTo(expected)
     }
 
