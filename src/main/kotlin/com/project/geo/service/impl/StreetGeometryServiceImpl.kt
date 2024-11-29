@@ -13,7 +13,6 @@ class StreetGeometryServiceImpl(
 
     override fun extractStreet(address: String, southWestPoint: List<Double>, northEastPoint: List<Double>): LineString {
         val points = (southWestPoint + northEastPoint).toTypedArray()
-
         return overpassClient.findStreet(address, points)
                 .elements
                 .map { Point.fromLngLat(it.lon, it.lat) }

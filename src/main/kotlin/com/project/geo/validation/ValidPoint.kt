@@ -5,7 +5,6 @@ import jakarta.validation.Payload
 import jakarta.validation.constraints.Size
 import kotlin.reflect.KClass
 
-@MustBeDocumented
 @Target(AnnotationTarget.VALUE_PARAMETER)
 @Retention(AnnotationRetention.RUNTIME)
 @Constraint(validatedBy = [])
