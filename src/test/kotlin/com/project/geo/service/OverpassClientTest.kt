@@ -18,7 +18,8 @@ import java.nio.charset.StandardCharsets
 class OverpassClientTest {
 
     private val overpassRestClientUrl: String = "http://localhost:8089"
-    private val overpassRestClient: RestClient = RestClient.create(overpassRestClientUrl)
+    private val overpassClientEndpoint: String = "/api/interpreter"
+    private val overpassRestClient: RestClient = RestClient.create(overpassRestClientUrl + overpassClientEndpoint)
     private val client: OverpassClientImpl = OverpassClientImpl(overpassRestClient)
 
     @Test
@@ -27,9 +28,9 @@ class OverpassClientTest {
         val secondPoint = Node(7.153, 50.723)
         val thirdPoint = Node(7.157, 50.725)
 
-        val intermediateResponse = provideRegularIntermediateResponse(firstPoint, secondPoint, thirdPoint)
+        val intermediateResponse = provideResponseForPoints(firstPoint, secondPoint, thirdPoint)
         val requestBody = OverpassClientImpl.STREET_REQUEST_BODY.format(ADDRESS, *(SOUTH_WEST + NORTH_EAST).toTypedArray())
-        stubFor(post(urlMatching(".*"))
+        stubFor(post(urlEqualTo(overpassClientEndpoint))
             .withRequestBody(equalTo(requestBody))
             .willReturn(okJson(intermediateResponse)))
 
@@ -40,7 +41,7 @@ class OverpassClientTest {
     @Test
     fun `test server error`() {
         val requestBody = OverpassClientImpl.STREET_REQUEST_BODY.format(ADDRESS, *(SOUTH_WEST + NORTH_EAST).toTypedArray())
-        stubFor(post(urlMatching(".*"))
+        stubFor(post(urlEqualTo(overpassClientEndpoint))
             .withRequestBody(equalTo(requestBody))
             .willReturn(serverError()))
 
@@ -52,7 +53,7 @@ class OverpassClientTest {
     @Test
     fun `test empty response`() {
         val requestBody = OverpassClientImpl.STREET_REQUEST_BODY.format(ADDRESS, *(SOUTH_WEST + NORTH_EAST).toTypedArray())
-        stubFor(post(urlMatching(".*"))
+        stubFor(post(urlEqualTo(overpassClientEndpoint))
             .withRequestBody(equalTo(requestBody))
             .willReturn(okJson("")))
 
@@ -60,7 +61,7 @@ class OverpassClientTest {
             .isInstanceOf(IllegalArgumentException::class.java)
     }
 
-    private fun provideRegularIntermediateResponse(first: Node, second: Node, third: Node): String {
+    private fun provideResponseForPoints(first: Node, second: Node, third: Node): String {
         return INTERMEDIATE_RESPONSE.format(
             LIST_ELEMENTS.format(
                 first.lat, first.lon,
