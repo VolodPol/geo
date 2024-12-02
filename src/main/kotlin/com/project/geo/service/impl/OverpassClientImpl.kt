@@ -18,7 +18,8 @@ class OverpassClientImpl(private val overpassRestClient: RestClient) : OverpassC
             .retrieve()
             .onStatus(HttpStatusCode::is5xxServerError) { _, response ->
                 throw IllegalArgumentException(response.statusCode.toString())
-            }.body<StreetResponse>() ?: throw IllegalArgumentException()
+            }.body<StreetResponse>() ?:
+            throw IllegalArgumentException("Empty response body. Check input parameters.")
     }
 
     companion object {

@@ -2,11 +2,11 @@ package com.project.geo.service
 
 import com.mapbox.geojson.LineString
 import com.mapbox.geojson.Point
+import com.project.geo.TestUtils.Companion.ADDRESS
+import com.project.geo.TestUtils.Companion.NORTH_EAST
+import com.project.geo.TestUtils.Companion.SOUTH_WEST
 import com.project.geo.dto.StreetResponse
 import com.project.geo.dto.StreetResponse.Node
-import com.project.geo.service.OverpassClientTest.Companion.ADDRESS
-import com.project.geo.service.OverpassClientTest.Companion.NORTH_EAST
-import com.project.geo.service.OverpassClientTest.Companion.SOUTH_WEST
 import com.project.geo.service.impl.StreetGeometryServiceImpl
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
@@ -25,20 +25,22 @@ class StreetGeometryServiceTest {
     @InjectMockKs
     private lateinit var service: StreetGeometryServiceImpl
 
+    private val coordinates: Array<Double> = (SOUTH_WEST + NORTH_EAST).toTypedArray()
+
     @Test
     fun verifyRegularOutput() {
-        val coordinates = listOf(Node(7.0, 50.1), Node(7.1, 50.2))
-        every {overpassClient.findStreet(any(), any())} returns StreetResponse(coordinates)
+        val nodes = listOf(Node(7.0, 50.1), Node(7.1, 50.2))
+        every {overpassClient.findStreet(ADDRESS, coordinates)} returns StreetResponse(nodes)
 
-        val expected = coordinates.map { Point.fromLngLat(it.lon, it.lat) }.let { LineString.fromLngLats(it) }
+        val expected = nodes.map { Point.fromLngLat(it.lon, it.lat) }.let { LineString.fromLngLats(it) }
         assertThat(service.extractStreet(ADDRESS, SOUTH_WEST, NORTH_EAST))
             .isEqualTo(expected)
     }
 
     @Test
     fun verifyEmptyOutput() {
-        val coordinates = listOf<Node>()
-        every {overpassClient.findStreet(any(), any())} returns StreetResponse(coordinates)
+        val nodes = listOf<Node>()
+        every {overpassClient.findStreet(ADDRESS, coordinates)} returns StreetResponse(nodes)
 
         val expected = LineString.fromLngLats(listOf())
         assertThat(service.extractStreet(ADDRESS, SOUTH_WEST, NORTH_EAST))

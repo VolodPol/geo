@@ -4,6 +4,10 @@ import com.github.tomakehurst.wiremock.junit5.WireMockTest
 import com.github.tomakehurst.wiremock.client.WireMock.*
 import com.project.geo.NODE_ELEMENTS
 import com.project.geo.RESPONSE_HEADER
+import com.project.geo.TestUtils.Companion.ADDRESS
+import com.project.geo.TestUtils.Companion.NORTH_EAST
+import com.project.geo.TestUtils.Companion.SOUTH_WEST
+import com.project.geo.TestUtils.Companion.readContent
 import com.project.geo.dto.StreetResponse
 import com.project.geo.dto.StreetResponse.Node
 import com.project.geo.service.impl.OverpassClientImpl
@@ -11,7 +15,6 @@ import org.junit.jupiter.api.Test
 import org.assertj.core.api.Assertions.*
 
 import org.springframework.web.client.RestClient
-import java.nio.charset.StandardCharsets
 
 
 @WireMockTest(httpPort = 8089)
@@ -62,31 +65,14 @@ class OverpassClientTest {
     }
 
     private fun provideResponseForPoints(first: Node, second: Node, third: Node): String {
-        return INTERMEDIATE_RESPONSE.format(
-            LIST_ELEMENTS.format(
+        val intermediateResponse = readContent(RESPONSE_HEADER)
+        val listElements = readContent(NODE_ELEMENTS)
+        return intermediateResponse.format(
+            listElements.format(
                 first.lat, first.lon,
                 second.lat, second.lon,
                 third.lat, third.lon
             )
         )
-    }
-
-    companion object {
-        const val ADDRESS = "John Doe Street"
-        val SOUTH_WEST: List<Double> = listOf(7.1, 45.0)
-        val NORTH_EAST: List<Double> = listOf(16.2, 50.8)
-
-        private val INTERMEDIATE_RESPONSE = readContent(RESPONSE_HEADER)
-        private val LIST_ELEMENTS = readContent(NODE_ELEMENTS)
-
-        private fun readContent(file: String): String {
-            var content = ""
-            try {
-                Thread.currentThread().contextClassLoader.getResourceAsStream(file)?.use {
-                    content = String(it.readAllBytes(), StandardCharsets.UTF_8)
-                }
-            } catch (_: Exception) {throw IllegalArgumentException("Resource file '$file' not found")}
-            return content
-        }
     }
 }
