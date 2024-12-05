@@ -6,7 +6,7 @@ on:
   pull_request:
     branches:
       - master
-    types: [opened, closed]
+    types: [opened, closed, edited]
 jobs:
   Build:
     runs-on: self-hosted
