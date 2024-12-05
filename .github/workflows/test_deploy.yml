@@ -9,7 +9,6 @@ on:
     types: [opened, closed, edited]
 jobs:
   Build:
-    name: JAR Build
     runs-on: self-hosted
     steps:
       - name: Set up repository and JDK
@@ -19,10 +18,9 @@ jobs:
           distribution: 'zulu'
           java-version: '22'
           cache: maven
-      - run: pwd
-      - run: ls -l $GITHUB_WORKSPACE
-      - run: cd $GITHUB_WORKSPACE
-      - run: pwd
+      - name: Check directory
+      - run: pwd && ls -l $GITHUB_WORKSPACE && cd $GITHUB_WORKSPACE && pwd
+      - name: Build JAR
       - run: mvn clean package -DskipTests
 
   Test:
