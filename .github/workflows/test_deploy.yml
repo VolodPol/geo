@@ -24,7 +24,7 @@ jobs:
       - name: Check dependencies
         run: echo $PATH
       - name: Build JAR
-        run: mvn clean package --file pom.xml -DskipTests
+        run: ./mvnw clean package --file pom.xml -DskipTests
 
   Test:
     runs-on: self-hosted
