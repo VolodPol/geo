@@ -20,7 +20,7 @@ jobs:
           java-version: '22.0.2'
           cache: maven
       - name: Check directory
-        run: pwd && ls -l $GITHUB_WORKSPACE && cd $GITHUB_WORKSPACE && pwd
+        run: pwd && ls
       - name: Check dependencies
         run: echo $PATH
       - name: Build JAR
@@ -29,7 +29,6 @@ jobs:
   Test:
     runs-on: self-hosted
     steps:
-      - run: mvn test
-    name: Testing
+      - run: ./mvnw test
     continue-on-error: false
     needs: Build
