@@ -9,6 +9,7 @@ on:
     types: [opened, closed, edited]
 jobs:
   Build:
+    name: JAR Build
     runs-on: self-hosted
     steps:
       - name: Set up repository and JDK
@@ -23,7 +24,6 @@ jobs:
       - run: cd $GITHUB_WORKSPACE
       - run: pwd
       - run: mvn clean package -DskipTests
-    name: JAR Build
 
   Test:
     runs-on: self-hosted
