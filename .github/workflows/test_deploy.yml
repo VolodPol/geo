@@ -1,0 +1,28 @@
+name: Testing & Deploying Action
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+    types:
+      - opened
+      - closed
+jobs:
+  Build:
+    runs-on: self-hosted
+    steps:
+      - run: pwd
+      - run: ls -l $GITHUB_WORKSPACE
+      - run: cd $GITHUB_WORKSPACE
+      - run: pwd
+      - run: ./mvnw clean package
+    name: JAR Build
+
+  Test:
+    runs-on: self-hosted
+    steps:
+      - run: ./mvnw test
+    name: Testing
+    continue-on-error: false
