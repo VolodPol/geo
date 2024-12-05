@@ -18,8 +18,8 @@ jobs:
           distribution: 'zulu'
           java-version: '22'
           cache: maven
-      - name: Check directory
-      - run: pwd && ls -l $GITHUB_WORKSPACE && cd $GITHUB_WORKSPACE && pwd
+#      - name: Check directory
+#      - run: pwd && ls -l $GITHUB_WORKSPACE && cd $GITHUB_WORKSPACE && pwd
       - name: Build JAR
       - run: mvn clean package -DskipTests
 
@@ -29,3 +29,4 @@ jobs:
       - run: mvn test
     name: Testing
     continue-on-error: false
+    needs: Build
