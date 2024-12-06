@@ -18,8 +18,8 @@ jobs:
       - name: Configure JDK
         uses: actions/setup-java@v4
         with:
-          distribution: 'oracle'
-          java-version: '22.0.2'
+          distribution: 'zulu'
+          java-version: '22'
           cache: maven
       - name: Check directory
         run: pwd && ls
@@ -40,6 +40,8 @@ jobs:
     steps:
       - name: Set up Docker
         uses: docker/setup-docker-action@v3
+        with:
+          rootless: 'true'
       - name: Build and push
         run: docker build -t geo .
     continue-on-error: false
