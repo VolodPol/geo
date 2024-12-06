@@ -7,6 +7,8 @@ on:
     branches:
       - master
     types: [opened, closed, edited]
+  workflow_dispatch:
+
 jobs:
   Build:
     runs-on: self-hosted
@@ -25,10 +27,20 @@ jobs:
         run: echo $PATH
       - name: Build JAR
         run: ./mvnw clean package --file pom.xml -DskipTests
-
   Test:
     runs-on: self-hosted
     steps:
       - run: ./mvnw test
     continue-on-error: false
     needs: Build
+#docker build -t geo .
+#docker container run -d -p 8080:8080 -e USER_PASSWORD=88428388-262c-4e60-bbf5-5b43ca8f7b98 geo
+  Build-Docker-Image:
+    runs-on: self-hosted
+    steps:
+      - name: Set up Docker
+        uses: docker/setup-docker-action@v3
+      - name: Build and push
+        run: docker build -t geo .
+    continue-on-error: false
+    needs: Test
