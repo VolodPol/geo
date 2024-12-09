@@ -15,24 +15,26 @@ jobs:
     steps:
       - name: Set up repository
         uses: actions/checkout@v4
-      - name: Configure JDK
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '22'
-          cache: maven
+#      - name: Configure JDK
+#        uses: actions/setup-java@v4
+#        with:
+#          distribution: 'temurin'
+#          java-version: '22'
+#          cache: maven
       - name: Check directory
         run: pwd && ls
       - name: Check dependencies
         run: echo $PATH
       - name: Build JAR
         run: ./mvnw clean package --file pom.xml -DskipTests
+
   Test:
     runs-on: self-hosted
     steps:
       - run: ./mvnw test
     continue-on-error: false
     needs: Build
+
 #docker build -t geo .
 #docker container run -d -p 8080:8080 -e USER_PASSWORD=88428388-262c-4e60-bbf5-5b43ca8f7b98 geo
   Build-Docker-Image:
