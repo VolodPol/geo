@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: local-geo-deploy
+  labels:
+    app: geo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: geo
+  template:
+    metadata:
+      labels:
+        app: geo
+    spec:
+      containers:
+        - name: app
+          image: volodpol/github-images:pr-3
+          imagePullPolicy: Always
+          env:
+            - name: USER_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: security
+                  key: security-password
+
+          ports:
+            - containerPort: 8080
+      imagePullSecrets:
+        - name: secret-dockerhub
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: local-geo-svc
+spec:
+  type: NodePort
+  selector:
+    app: geo
+  ports:
+    - name: local-geo-port
+      protocol: TCP
+      port: 8080
+      targetPort: 8080
