@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: app
-          image: volodpol/github-images:pr-3
+          image: volodpol/github-images:latest
           imagePullPolicy: Always
           env:
             - name: USER_PASSWORD
